@@ -42,10 +42,10 @@ export function UnicoProvider({ children }: { children: ReactNode }) {
   };
 
   const prepareSelfieCamera = async () => {
+    await navigator.mediaDevices.getUserMedia({
+      video: true,
+    });
     try {
-      console.log("unicoBuilderRef", unicoBuilderRef.current);
-      console.log("configRef", configRef.current);
-      console.log("selfieTypeRef", selfieTypeRef.current.NORMAL);
       if (
         !unicoBuilderRef.current ||
         !configRef.current ||
@@ -56,9 +56,10 @@ export function UnicoProvider({ children }: { children: ReactNode }) {
 
       const cameraOpener = await unicoBuilderRef.current.prepareSelfieCamera(
         configRef.current,
-        selfieTypeRef.current.NORMAL
+        selfieTypeRef.current.SMART
       );
       console.log("cameraOpener");
+      setShowCamera(true);
       cameraOpener.open(callback);
     } catch (error: any) {
       alert(error.message);
@@ -105,10 +106,11 @@ export function UnicoProvider({ children }: { children: ReactNode }) {
         `<div style="position: absolute; top: 45%; right: 50%; transform: translate(50%, -50%); z-index: 10; text-align: center;">Carregandooooo...</div>`
       )
       .build();
+
     unicoBuilderRef.current = new UnicoCheckBuilder()
       .setTheme(unicoThemeRef.current)
-      // .setModelsPath("http://localhost:3000/models")
-      // .setResourceDirectory("/resources")
+      .setModelsPath("http://localhost:3000/models")
+      .setResourceDirectory("http://localhost:3000/resources")
       .setEnvironment(SDKEnvironmentTypes.UAT)
       .setLocale(LocaleTypes.PT_BR)
       .build();
@@ -117,8 +119,8 @@ export function UnicoProvider({ children }: { children: ReactNode }) {
     configRef.current = new UnicoConfig()
       .setProjectNumber("125176493860621304290")
       .setProjectId("front-captacao-loja")
-      .setMobileSdkAppId("3:1358170:js")
-      .setHostname("https://localhost:3000/")
+      .setMobileSdkAppId("3:3255998:js")
+      .setHostname("https://www.sitdm.net")
       .setHostInfo(
         "nRMqSJJeWMZ0K4n9Dxs/Zhb5RslAxes+pmH0gJgmVtYUGOY3bRieG1JVkSC2iaO/"
       )
@@ -142,7 +144,11 @@ export function UnicoProvider({ children }: { children: ReactNode }) {
   }, []);
 
   if (!isInitialized) {
-    return <div>Loading...</div>;
+    return (
+      <main className="flex min-h-screen items-center ">
+        <div className="mx-auto">Loading...</div>
+      </main>
+    );
   }
 
   // Provedor fornece o valor do contexto para os componentes filhos
