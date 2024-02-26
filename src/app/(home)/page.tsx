@@ -1,15 +1,43 @@
 "use client";
-import { useUnico } from "@/contexts/unico-context";
+
+import { useUnico } from "@/hook/unico-hook";
 
 export default function Home() {
-  const { prepareSelfieCamera, showCamera } = useUnico();
+  const { unicoState, showCamera, openCamera, closeCamera } = useUnico();
 
-  const handleClick = () => prepareSelfieCamera();
+  async function prepareSelfieCamera() {
+    const cameraOpener = await unicoState.builder?.prepareSelfieCamera(
+      unicoState.config,
+      unicoState.selfieTypes!.SMART
+    );
+
+    openCamera();
+
+    if (cameraOpener) {
+      cameraOpener.open({
+        on: {
+          success: (obj: { base64: string; encrypted: any }) => {
+            console.log(obj.base64);
+            console.log(obj.encrypted);
+            closeCamera();
+          },
+          error: (error: { message: string; code: number; stack: any }) => {
+            closeCamera();
+            alert(error.message);
+          },
+        },
+      });
+    }
+  }
+
+  if (unicoState.loading) {
+    return <p>Carregando..</p>;
+  }
 
   console.log("showCamera", showCamera);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="main-container">
       <div
         style={{
           display: showCamera ? "inline" : "none",
@@ -19,9 +47,9 @@ export default function Home() {
       </div>
 
       {!showCamera && (
-        <div className="main-container">
+        <div>
           <main>
-            <button type="button" onClick={handleClick}>
+            <button type="button" onClick={() => prepareSelfieCamera()}>
               Prepare Selfie Camera
             </button>
           </main>
